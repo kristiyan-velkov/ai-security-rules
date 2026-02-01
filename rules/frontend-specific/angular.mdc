@@ -1,0 +1,35 @@
+---
+description: Angular security (angular app)
+globs: "**/angular/**/*.ts,**/angular/**/*.html,**/angular/**/*.component.*,**/*.component.ts,**/*.component.html,**/src/app/**/*.ts,**/src/app/**/*.html"
+alwaysApply: false
+---
+
+# Angular Security
+
+Apply for **Angular** app (e.g. `angular/`, port 8080). All shared front-end rules (xss, auth-sessions, sensitive-data, api-network, dependencies) also apply.
+
+## XSS and Sanitization
+
+- **Never** use `bypassSecurityTrust*` (DomSanitizer) with user or API data. Use only for trusted, server-controlled content.
+- For user/API content: use default binding `{{ value }}` (Angular escapes) or sanitize with `DomSanitizer.sanitize(SecurityContext.HTML, value)` before `[innerHTML]`.
+- Avoid `[href]="userUrl"` without validation; use **UrlSanitizer** or allowlist `https://` and reject `javascript:`.
+
+## Templates
+
+- Do not use `[innerHTML]="userInput"` without sanitization. Prefer `{{ userInput }}` for plain text.
+- Avoid constructing URLs or script sources from user input in templates; use pipes or sanitized values only.
+
+## HTTP and Auth
+
+- Use **HttpClient**; do not disable SSL or certificate validation. Send tokens in `Authorization` header, not query params.
+- Store tokens in memory or secure storage; prefer HttpOnly cookies for refresh tokens. Clear auth state on logout.
+- Use **HttpInterceptor** for auth; do not log tokens or PII in interceptors.
+
+## Guards and State
+
+- Protect routes with **AuthGuard** (or equivalent). Use **CanActivate** / **CanActivateChild** for resource-level checks; do not rely only on client-side guards for authorization.
+- Do not provide sensitive config (API keys, secrets) in root injectors that might be exposed. Use backend proxy or server-side config for secrets.
+
+## Red Flags
+
+- `bypassSecurityTrustHtml(userInput)`; `[innerHTML]="userInput"`; building redirect or href from user input; storing JWT in localStorage without exception; disabling HttpClient SSL.

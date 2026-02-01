@@ -1,0 +1,32 @@
+---
+description: Analog.js (Angular) security (analog.js app)
+globs: "**/analog.js/**/*.ts,**/analog.js/**/*.html,**/analog.js/**/*.component.*,**/analog.js/**/*.page.*,**/*.page.ts,**/app/**/*.ts,**/src/app/**/*.ts"
+alwaysApply: false
+---
+
+# Analog.js Security
+
+Apply for **Analog.js** app (e.g. `analog.js/`, port 3000). Analog uses Angular 21; follow Angular security rules plus SSG/SSR-specific rules below. All shared front-end rules (xss, auth-sessions, sensitive-data, api-network, dependencies) also apply.
+
+## XSS and Sanitization (Angular)
+
+- **Never** use `bypassSecurityTrust*` (DomSanitizer) with user or API data. Use default `{{ value }}` or sanitize before `[innerHTML]`.
+- Avoid `[href]="userUrl"` without validation; allowlist `https://` and reject `javascript:`.
+
+## Server-Side and API Routes
+
+- In **server routes** or **API handlers**, validate and sanitize all input. Do not trust client; authorize after authenticate. Do not expose secrets or PII in responses.
+- Do not log tokens or PII. Use env for secrets; never hardcode in server or client code.
+
+## Cookies and Auth
+
+- Use secure cookie options: **secure**, **httpOnly**, **sameSite** (strict or lax). Send tokens in `Authorization` header when calling APIs, not in query params.
+- Do not store tokens or secrets in client-visible state that gets serialized; prefer HttpOnly cookies or server-side session.
+
+## Redirects and Navigation
+
+- Never build redirect URLs from user input (open redirect). Use allowlisted routes or server-provided redirect URIs for OAuth.
+
+## Red Flags
+
+- `bypassSecurityTrust*` with user data; `[innerHTML]="userInput"`; unvalidated input in server routes; cookies without secure/httpOnly; redirect to user-controlled URL; secrets in client bundle.

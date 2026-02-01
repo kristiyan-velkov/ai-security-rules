@@ -1,0 +1,33 @@
+---
+description: Remix (React Router v7) security (remix.js app)
+globs: "**/remix.js/**/*.tsx,**/remix.js/**/*.jsx,**/remix.js/**/*.ts,**/remix.js/**/*.js,**/remix.js/remix.config.*,**/remix.config.*,**/vite.config.*,**/app/**/*.tsx,**/app/**/*.jsx,**/routes/**/*.tsx,**/routes/**/*.jsx"
+alwaysApply: false
+---
+
+# Remix (React Router v7) Security
+
+Apply for **Remix.js** app (e.g. `remix.js/`, port 3000). All shared front-end rules (xss, auth-sessions, sensitive-data, api-network, dependencies) also apply.
+
+## Loaders and Actions
+
+- **Never** trust client input. Validate and sanitize all data in **loaders** and **actions** (type, length, format). Use schema validation (Zod, etc.); return 400/422 for invalid. Authorize after authenticate: verify the user can access the resource.
+- Do not expose secrets or internal URLs in loader/action responses. Do not log tokens or PII.
+- Do not embed secrets or PII in SSR HTML or JSON sent to the client (e.g. in loader data or serialized state).
+
+## Cookies and Sessions
+
+- Use **createCookie** or session storage with secure flags: **secure: true**, **httpOnly: true**, **sameSite: 'lax'** or **'strict'**. In production, use **HTTPS** and **secure: true**.
+- Do not store tokens or secrets in client-visible cookies. Prefer server-side session or HttpOnly cookies for auth.
+
+## XSS and Output
+
+- **Never** use `dangerouslySetInnerHTML` with unsanitized user or API data. Sanitize with DOMPurify before rendering. Default `{userInput}` is safe (React escapes).
+- Validate and sanitize data before rendering in components; encode for the right context.
+
+## Redirects and Navigation
+
+- Never build redirect URLs from user input (open redirect). Use **redirect()** with allowlisted paths or server-controlled URLs. Validate **returnTo** or similar params against an allowlist.
+
+## Red Flags
+
+- Unvalidated request in loaders/actions; cookies without secure/httpOnly; `dangerouslySetInnerHTML` with user data; redirect to user-controlled URL; secrets in client-visible cookies or responses.

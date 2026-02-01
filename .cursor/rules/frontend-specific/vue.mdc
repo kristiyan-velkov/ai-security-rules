@@ -1,0 +1,33 @@
+---
+description: Vue.js security (vue.js app)
+globs: "**/vue.js/**/*.vue,**/vue.js/**/*.ts,**/vue.js/**/*.js,**/*.vue,**/src/**/*.vue,**/app/**/*.vue,**/pages/**/*.vue"
+alwaysApply: false
+---
+
+# Vue.js Security
+
+Apply for **Vue.js** app (e.g. `vue.js/`, port 8080). All shared front-end rules (xss, auth-sessions, sensitive-data, api-network, dependencies) also apply.
+
+## XSS
+
+- **Never** use `v-html` with unsanitized user or API data. For rich content, sanitize first (e.g. DOMPurify) then `v-html="sanitized"`.
+- Default `{{ userInput }}` and `:text="userInput"` are safe (Vue escapes). Use for plain text.
+- Avoid `:href="userUrl"` without validation; allowlist `https://` and reject `javascript:` and unsafe `data:`.
+
+## Data and Reactivity
+
+- Do not store tokens or secrets in `reactive()`/`ref()`/Pinia state that gets persisted to localStorage or sent to analytics without necessity. Prefer memory or HttpOnly cookies; clear on logout.
+- Do not put secrets in env vars that are inlined into client bundle (e.g. Vite: only `VITE_*` are exposed; use for public config only).
+
+## Routing (Vue Router)
+
+- Never build redirect URLs from user input (open redirect). Use allowlisted routes or server-provided redirect URIs for OAuth.
+- Validate route params before using in API calls or template; do not pass raw params to DOM or external services.
+
+## provide/inject
+
+- Do not provide API keys or tokens via `provide()` unless they are non-sensitive or short-lived. Prefer backend proxy for sensitive operations.
+
+## Red Flags
+
+- `v-html="userInput"`; storing JWT in localStorage without exception; building `to` or `href` from user input; exposing secrets via `provide` or env.

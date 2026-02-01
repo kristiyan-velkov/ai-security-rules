@@ -1,0 +1,38 @@
+---
+description: Nuxt.js security (nuxt.js app)
+globs: "**/nuxt.js/**/*.vue,**/nuxt.js/**/*.ts,**/nuxt.js/**/*.js,**/nuxt.js/nuxt.config.*,**/nuxt.js/app.config.*,**/nuxt.config.*,**/app.config.*,**/*.vue,**/app/**/*.vue,**/pages/**/*.vue"
+alwaysApply: false
+---
+
+# Nuxt.js Security
+
+Apply for **Nuxt.js** app (e.g. `nuxt.js/`, port 3000). All shared front-end rules (xss, auth-sessions, sensitive-data, api-network, dependencies) also apply.
+
+## Runtime Config and Secrets
+
+- **Client:** Only config under **runtimeConfig.public** is exposed to the browser. Never put API keys, tokens, or secrets in `runtimeConfig.public`. Use for public config only (e.g. public API base URL).
+- **Server:** Use **runtimeConfig** (non-public) or **useRuntimeConfig()** in server context (API routes, server middleware, server plugins). Do not pass server-only config to client components. Load secrets from env (e.g. **NUXT_*** for Nuxt; keep secrets in server-only env).
+
+## XSS and Output
+
+- **Never** use `v-html` with unsanitized user or API data. Sanitize with DOMPurify (or equivalent) before `v-html`. Default `{{ userInput }}` is safe (Vue escapes).
+- In **server API routes** and **server middleware**, validate and sanitize all input; encode output for the right context.
+
+## Auth and Cookies
+
+- Use **useCookie** with **secure**, **httpOnly**, **sameSite** for auth/session cookies. In production, use HTTPS and secure cookies.
+- Do not store tokens or secrets in client-visible cookies or in state that gets serialized to the client. Prefer server-side session or HttpOnly cookies.
+
+## Server Routes and Middleware
+
+- Validate and sanitize all input in **server/api/** and **server middleware**. Authorize after authenticate; do not trust client-only checks.
+- Do not log or return secrets or PII in API responses. Use proper status codes and generic error messages in production.
+- Do not embed secrets or PII in SSR HTML or JSON sent to the client (e.g. in serialized state or payload).
+
+## Redirects and Navigation
+
+- Never build redirect URLs from user input (open redirect). Use allowlisted paths or server-provided redirect URIs for OAuth.
+
+## Red Flags
+
+- Secrets in `runtimeConfig.public`; `v-html="userInput"`; unvalidated input in server routes; cookies without secure/httpOnly; redirect to user-controlled URL; leaking server-only config to client.

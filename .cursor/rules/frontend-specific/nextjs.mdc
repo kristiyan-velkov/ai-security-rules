@@ -1,0 +1,34 @@
+---
+description: Next.js security (next.js app)
+globs: "**/next.js/**/*.tsx,**/next.js/**/*.jsx,**/next.js/**/*.ts,**/next.js/**/*.js,**/next.js/next.config.*,**/next.js/middleware.*,**/next.config.*,**/next.config.js,**/middleware.ts,**/middleware.js,**/app/**/*.tsx,**/app/**/*.jsx,**/pages/**/*.tsx,**/pages/**/*.jsx"
+alwaysApply: false
+---
+
+# Next.js Security
+
+Apply for **Next.js** app (e.g. `next.js/`, port 3000). All shared front-end rules (xss, auth-sessions, sensitive-data, api-network, dependencies) also apply.
+
+## Environment and Secrets
+
+- **Client:** Only `NEXT_PUBLIC_*` is exposed to the browser. Never put API keys, tokens, or secrets in `NEXT_PUBLIC_*` or in client components. Use for public config only.
+- **Server:** Use `process.env` in Server Components, Route Handlers, and API routes; load secrets from env/vault. Do not pass secrets as props to client components.
+
+## XSS and Output
+
+- **Never** use `dangerouslySetInnerHTML` with unsanitized user or API data. Sanitize with DOMPurify before rendering. Default `{userInput}` is safe (React escapes).
+- In Server Components and Route Handlers, validate and sanitize all input; encode output for the right context (HTML, JSON).
+
+## Auth and Middleware
+
+- Use middleware for auth checks only with non-sensitive logic; do not put secrets in middleware (runs at edge). Store tokens in HttpOnly cookies or validate server-side in Route Handlers/Server Actions.
+- Never build redirect URLs from user input in `redirect()` or middleware (open redirect). Use allowlisted paths.
+
+## Server Actions and Route Handlers
+
+- Validate and sanitize all input in Server Actions and Route Handlers. Revalidate and authorize; do not trust client-only checks.
+- Do not log or return secrets or PII in responses. Use proper status codes and generic error messages in production.
+- Do not embed secrets or PII in SSR HTML or JSON sent to the client (e.g. in serialized state or RSC payload).
+
+## Red Flags
+
+- `NEXT_PUBLIC_*` with API keys or secrets; `dangerouslySetInnerHTML` with user data; redirect to user-controlled URL; passing secrets to client components; leaking server-only env to client.

@@ -1,0 +1,32 @@
+---
+description: TanStack Start security (tanstack-start app)
+globs: "**/tanstack-start/**/*.tsx,**/tanstack-start/**/*.jsx,**/tanstack-start/**/*.ts,**/tanstack-start/**/*.js,**/tanstack-start/app.config.*,**/app.config.*,**/app/**/*.tsx,**/app/**/*.jsx,**/routes/**/*.tsx,**/routes/**/*.jsx"
+alwaysApply: false
+---
+
+# TanStack Start Security
+
+Apply for **TanStack Start** app (e.g. `tanstack-start/`, port 3000). All shared front-end rules (xss, auth-sessions, sensitive-data, api-network, dependencies) also apply.
+
+## Server Functions and API
+
+- **Never** trust client input. Validate and sanitize all data in **server functions** and API routes (type, length, format). Use schema validation (Zod, etc.); return 400 for invalid. Authorize after authenticate.
+- Do not expose secrets or internal URLs in server responses. Do not log tokens or PII in server functions.
+
+## Cookies and Auth
+
+- Use secure cookie options: **secure**, **httpOnly**, **sameSite** (strict or lax). In production, use HTTPS and secure cookies.
+- Do not store tokens or secrets in client-visible cookies or in state that gets serialized to the client. Prefer server-side session or HttpOnly cookies for auth.
+
+## XSS and Output
+
+- **Never** use `dangerouslySetInnerHTML` with unsanitized user or API data. Sanitize with DOMPurify before rendering. Default React-style `{userInput}` is safe (framework escapes).
+- Validate and sanitize data before rendering; encode for the right context (HTML, URL).
+
+## Routing and Redirects
+
+- Never build redirect URLs from user input (open redirect). Use allowlisted paths or server-controlled URLs. Validate route params before using in API calls or render.
+
+## Red Flags
+
+- Unvalidated input in server functions; cookies without secure/httpOnly; `dangerouslySetInnerHTML` with user data; redirect to user-controlled URL; secrets in client bundle or responses.
