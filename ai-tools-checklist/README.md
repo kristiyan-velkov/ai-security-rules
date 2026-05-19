@@ -23,8 +23,10 @@ These files are for **AI coding assistants** (Cursor, GitHub Copilot, Claude, et
 
 ### Cursor
 
-- **Rules:** Copy the content of `security-system-prompt.md` into a new rule in `.cursor/rules/` (e.g. under `general/`) with `alwaysApply: true`, or use this repo’s `.cursor/rules/` as-is.
+- **Rules:** Use this repo’s `.cursor/rules/` (synced from `rules/`) or copy `rules/` into your project’s `.cursor/rules/`.
+- **Agent:** Use the **frontend-security** subagent (`.cursor/agents/frontend-security.md`) — invoke with `/frontend-security` for security reviews.
 - **Checklist:** Add `security-checklist.md` to a rule or your docs; reference it in PR templates or before merging.
+- **Package managers:** Copy templates from `package-manager/` (`.npmrc`, `.yarnrc.yml`, `.pnpmrc`) to your project root.
 
 ### GitHub Copilot
 

@@ -11,7 +11,9 @@ AI Security rules and best practices for **front-end** applications, designed to
 - **General security rule** – Always-on principles (never trust input, no secrets in code, secure defaults).
 - **Shared front-end rules** – XSS, auth/sessions, sensitive data, dependencies, API/network, CSP & clickjacking, open redirect (apply to all apps).
 - **Framework-specific rules** – One rule file per supported framework (see table below).
-- **AI tool prompts** – Ready-to-use prompts and checklists for AI code generation.
+- **Package manager configs** – Hardened `.npmrc`, `.yarnrc.yml`, and `.pnpmrc` templates (`package-manager/`).
+- **Cursor setup** – Rules in `.cursor/rules/` and a **frontend-security** subagent in `.cursor/agents/` (see [Cursor setup](#cursor-setup)).
+- **AI tool prompts** – Ready-to-use prompts and checklists for AI code generation (`ai-tools-checklist/`).
 
 ## Supported frameworks
 
@@ -37,7 +39,7 @@ git submodule add https://github.com/YOUR_ORG/ai-security-rules.git .security-ru
 cp -r .security-rules/rules ./
 ```
 
-Then commit `rules/` so everyone (and AI) uses the same rules. **Cursor users:** copy `rules/` into your project as `.cursor/rules/` so Cursor picks them up automatically.
+Then commit `rules/` so everyone (and AI) uses the same rules. **Cursor users:** copy `rules/` to `.cursor/rules/` and optionally `.cursor/agents/` from this repo (see [Cursor setup](#cursor-setup)).
 
 ### Option 2: Copy rules into your project
 
@@ -121,6 +123,46 @@ Rules in **`rules/`** can be copied to `.cursor/rules/` for **Cursor** (picked u
 - **Open redirect** – Allowlist redirect targets; never use user input as redirect URL.
 - **Dependencies** – Audits, lockfiles, trusted packages, SRI for third-party scripts.
 
+## Package manager security (`package-manager/`)
+
+Copy hardened config into your **project root** (npm/Yarn/pnpm only read config from there):
+
+| Template | Tool | Copy to |
+|----------|------|---------|
+| `package-manager/.npmrc` | npm | `.npmrc` |
+| `package-manager/.yarnrc.yml` | Yarn Berry (v2+) | `.yarnrc.yml` |
+| `package-manager/.pnpmrc` | pnpm | `.pnpmrc` |
+
+**Highlights:** block install scripts by default, exact versions, audit/trust policies, minimum package age (7 days), strict engines/peers, dependency-confusion notes for private scopes.
+
+```bash
+cp package-manager/.npmrc ./          # npm
+cp package-manager/.yarnrc.yml ./     # Yarn
+cp package-manager/.pnpmrc ./         # pnpm
+```
+
+See **`package-manager/README.md`** for allowlisting build scripts, monorepo `pnpm-workspace.yaml`, and customization.
+
+## Cursor setup
+
+This repo includes a ready-to-use **`.cursor/`** folder:
+
+| Path | Purpose |
+|------|--------|
+| `.cursor/rules/general/` | Always-on `general-security.mdc` |
+| `.cursor/rules/frontend-specific/` | XSS, auth, API, CSP, open redirect, framework rules |
+| `.cursor/agents/frontend-security.md` | Security subagent — invoke with `/frontend-security` or ask Agent to review auth/XSS/secrets |
+| `.cursor/README.md` | Sync instructions and layout |
+
+**Use in another project:**
+
+```bash
+cp -r rules/general rules/frontend-specific /path/to/your-project/.cursor/rules/
+cp -r .cursor/agents /path/to/your-project/.cursor/
+```
+
+**Keep in sync:** after editing `rules/`, copy into `.cursor/rules/` (see `.cursor/README.md`).
+
 ## Using the AI tool prompts
 
 The `ai-tools-checklist/` folder contains prompts you can plug into any AI coding assistant:
@@ -134,21 +176,19 @@ Use them in **Cursor** (Rules), **GitHub Copilot** (project instructions), **Cla
 
 ```
 ai-security-rules/
-├── rules/
+├── rules/                    # Canonical rules (copy to .cursor/rules/ in projects)
 │   ├── general/
-│   │   └── general-security.mdc
 │   └── frontend-specific/
-│       ├── xss.mdc, auth-sessions.mdc, sensitive-data.mdc
-│       ├── dependencies.mdc, api-network.mdc
-│       ├── csp-headers.mdc, open-redirect.mdc
-│       ├── react.mdc, nextjs.mdc, remix.mdc, tanstack-start.mdc
-│       ├── angular.mdc, analog.mdc, vue.mdc, nuxt.mdc
+├── .cursor/                  # Cursor: rules + frontend-security agent
+│   ├── agents/
+│   ├── rules/
+│   └── README.md
+├── package-manager/          # .npmrc, .yarnrc.yml, .pnpmrc templates
+│   └── README.md
 ├── ai-tools-checklist/
-│   ├── README.md
 │   ├── security-system-prompt.md
 │   └── security-checklist.md
 ├── images/
-│   └── ai-front-end-security-rules-logo.png
 └── README.md
 ```
 
@@ -161,6 +201,8 @@ These rules aim for **production-ready** front-end security: they cover XSS, aut
 - **Directories:** If your app lives in a different folder (e.g. `apps/next`), edit the `globs` frontmatter in the framework `.mdc` file (e.g. add `**/apps/next/**`).
 - **Strictness:** Relax or tighten rules (e.g. documented exception for localStorage tokens).
 - **New frameworks:** Add a new `.mdc` file under `rules/frontend-specific/` with the right `globs` for that app.
+- **Package managers:** Edit templates in `package-manager/`; set private registry scopes; allow specific `allowBuilds` after review.
+- **Cursor agent:** Edit `.cursor/agents/frontend-security.md` for your team’s review format or stack list.
 
 ## Contributing
 

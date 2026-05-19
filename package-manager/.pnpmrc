@@ -1,0 +1,57 @@
+# ── Security ─────────────────────────────────────────────────────────────────
+# Do not execute any lifecycle scripts from dependencies.
+ignoreScripts=true
+
+# Refuse to install packages whose `engines.node` is incompatible.
+engineStrict=true
+
+# Fail when peer dependencies are missing or mismatched.
+strictPeerDependencies=true
+
+# Verify the integrity of the content-addressable store on each install.
+verifyStoreIntegrity=true
+
+# Block transitive deps from pulling code via git+ssh:// or raw tarball URLs.
+# (Default true; set explicitly for documentation.)
+blockExoticSubdeps=true
+
+# Reject installs that downgrade a package's trust evidence
+# (e.g. a previously-provenanced publisher → unsigned release).
+trustPolicy=no-downgrade
+
+# Minimum age (MINUTES) a published version must reach before pnpm will install it.
+# 10080 = 7 days, matching the original `min-release-age=7` (days) on the npm side.
+minimumReleaseAge=10080
+# Fail resolution if no version in range satisfies minimumReleaseAge
+# (default is `true` when minimumReleaseAge is set explicitly, but be explicit).
+minimumReleaseAgeStrict=true
+
+# ── Reproducibility / install behavior ───────────────────────────────────────
+# Always save exact versions in package.json (no ^ or ~).
+savePrefix=""
+
+# Auto-install peer dependencies (default true since v8; explicit).
+autoInstallPeers=true
+
+# Deduplicate peer dependents across the graph.
+dedupePeerDependents=true
+
+# Isolated node_modules layout — packages can only access declared deps.
+nodeLinker=isolated
+shamefullyHoist=false
+
+# Prefer cached packages when possible.
+preferOffline=true
+
+# Reduce noise in CI/CD.
+loglevel=error
+
+# Suppress the "newer pnpm available" banner in CI.
+updateNotifier=false
+
+# ── Build script allow-list ──────────────────────────────────────────────────
+# `ignoreScripts: true` above is the global kill switch. If you need a specific
+# package's install script to run, flip it to `true` here after reviewing it.
+allowBuilds:
+  esbuild: false
+  sharp: false
